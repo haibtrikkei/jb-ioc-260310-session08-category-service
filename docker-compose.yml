@@ -14,6 +14,8 @@ services:
     depends_on:
       category-db:
         condition: service_healthy
+    networks:
+      - session08-network
 
   category-db:
     image: postgres:17-alpine
@@ -25,6 +27,8 @@ services:
       POSTGRES_DB: category_db
     volumes:
       - category-db-data:/var/lib/postgresql/data
+    networks:
+      - session08-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d category_db"]
       interval: 10s
@@ -33,3 +37,6 @@ services:
 
 volumes:
   category-db-data:
+networks:
+    session08-network:
+        driver: bridge
