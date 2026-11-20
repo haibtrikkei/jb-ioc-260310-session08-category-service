@@ -1,0 +1,35 @@
+
+services:
+  category-service:
+    image: ghcr.io/haibtrikkei/session08-category-service:${IMAGE_TAG:-latest}
+    container_name: category-service
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://category-db:5432/category_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1234$
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      category-db:
+        condition: service_healthy
+
+  category-db:
+    image: postgres:17-alpine
+    container_name: category-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234$
+      POSTGRES_DB: category_db
+    volumes:
+      - category-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d category_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  category-db-data:
